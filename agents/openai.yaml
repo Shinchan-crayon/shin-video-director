@@ -1,0 +1,4 @@
+name: shin-video-director
+display_name: "Shin-video 总导演"
+description: "Shin-video 总导演，用于 Shin-video 口播视频工作流的「总控」阶段。"
+default_prompt: "请使用「Shin-video 总导演」处理当前 Shin-video 项目，并严格遵守 SKILL.md 的输入、输出和边界要求。"
