@@ -25,6 +25,5 @@ Shin-video 基于：
 
 - 本仓库不是 WhisperX 官方仓库。
 - 本仓库不是 Remotion 官方仓库。
-- 本仓库不声称 faster-whisper、WhisperX、Remotion 为 ThinkAI 自研。
 - v1 不做图片素材链路。
 - v1 不做网站、账号、项目列表、历史记录或仪表盘。
