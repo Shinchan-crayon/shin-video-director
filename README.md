@@ -44,7 +44,6 @@ runtime/preview.mp4
 
 本 Skill 属于 Shin-video 工作流封装。根据具体阶段，它可能调用文本模型、音频模型、WhisperX、faster-whisper、Remotion、Node.js、Python 或 FFmpeg。
 
-WhisperX、Remotion、faster-whisper 不是 ThinkAI 自研，也不是本仓库自研。
 
 ## 能力边界
 
