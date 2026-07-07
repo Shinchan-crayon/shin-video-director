@@ -30,10 +30,14 @@ references/WhisperX和Remotion部署说明.md
 
 首次运行必须检查 Node.js、npm、Python、FFmpeg、Remotion、WhisperX、faster-whisper 模型和 `.env.local`。MiniMax 音频模型默认使用 `speech-2.8-hd`，默认 `voice_id` 为 `Chinese (Mandarin)_Reliable_Executive`。如果缺 `MINIMAX_API_KEY`，只提醒用户写入 `.env.local`，不要要求用户把 API Key 发到对话里，也不要把真实 API Key 写入 GitHub、Skill 或说明文档。
 
+本 Skill 是总控入口，不是完整工作流包。首次安装或排查时，必须确认 10 个子 Skill 是否都已安装：`web-article-cleaner`、`voiceover-writer`、`audio-checker`、`whisperx-transcriber`、`scene-generator`、`subtitle-rhythm-builder`、`remotion-video-director`、`style-consultant`、`animation-preset-builder`、`remotion-renderer`。缺少任一子 Skill 时，先提示安装完整工作流，不要假装总控入口能独立完成全部视频。
+
+MiniMax 是默认自动 TTS 路径，不是唯一入口。如果 MiniMax 请求失败、缺少 Key、额度不足，或用户已经有音频，允许用户手动提供 `口播音频.mp3` 后继续执行 `audio-checker`、`whisperx-transcriber`、`scene-generator`、`remotion-video-director`、`animation-preset-builder` 和 `remotion-renderer`。不要因为 TTS 失败中断后续所有步骤。
+
 ## 判断顺序
 
 1. 如果用户给的是文章链接、粘贴文章或文章文件：调用 `web-article-cleaner`，再调用 `voiceover-writer`。
-2. 如果已有 `口播文案.md`，但没有 `口播音频.mp3`：提醒用户用口播文案生成音频，并命名为 `口播音频.mp3`。
+2. 如果已有 `口播文案.md`，但没有 `口播音频.mp3`：默认用 MiniMax 生成音频；MiniMax 不可用时，提醒用户手动生成或上传音频，并命名为 `口播音频.mp3`。
 3. 如果已有 `口播音频.mp3`：调用 `audio-checker`，再调用 `whisperx-transcriber`。
 4. 如果已有 `runtime/asr.json`：调用 `scene-generator`，再调用 `subtitle-rhythm-builder`。
 5. 如果已有 `runtime/scenes.json`，但没有 `runtime/director-plan.json`：必须调用 `remotion-video-director`。

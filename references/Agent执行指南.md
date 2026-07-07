@@ -26,6 +26,24 @@ npx remotion --version
 
 再检查 `.env.local` 是否存在。
 
+还要确认这不是只安装了总控入口。完整 Shin-video 至少需要：
+
+```text
+shin-video-director
+web-article-cleaner
+voiceover-writer
+audio-checker
+whisperx-transcriber
+scene-generator
+subtitle-rhythm-builder
+remotion-video-director
+style-consultant
+animation-preset-builder
+remotion-renderer
+```
+
+缺少子 Skill 时，先补安装，不要把总控入口当成完整工作流。
+
 ## 二、环境变量检查
 
 必须检查 `.env.local`，但不要把真实密钥打印给用户。
@@ -60,6 +78,8 @@ MINIMAX_VOICE_ID=Chinese (Mandarin)_Reliable_Executive
 
 如果已经出现在对话里，不要写进 GitHub、README、Skill 或上传指令。
 
+MiniMax 是默认自动生成音频的路径。MiniMax 不可用时，不要终止整个工作流；如果用户能提供 `口播音频.mp3`，就从音频检查继续往下跑。
+
 ## 三、完整执行链路
 
 固定链路：
@@ -70,7 +90,7 @@ MINIMAX_VOICE_ID=Chinese (Mandarin)_Reliable_Executive
 → 文章正文.md
 → voiceover-writer
 → 口播文案.md
-→ MiniMax speech-2.8-hd
+→ MiniMax speech-2.8-hd 或用户手动提供音频
 → 口播音频.mp3
 → audio-checker
 → whisperx-transcriber
