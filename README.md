@@ -1,187 +1,110 @@
 # Shin-video 总导演
 
-把一篇文章变成一条带口播、字幕、导演镜头设计和 Remotion MG 动画的本地视频生成工作流入口。
+> Shin-video AI 员工体系中的「总控编排」Skill。它不是孤立提示词，而是整条文章转口播视频流水线的一环。
 
-用户侧只需要理解一句话：
+## 它能解决什么问题
 
-```text
-给文章，确认口播，放入口播音频，Agent 自动生成视频。
-```
+用户不知道从文章、音频、时间轴、导演方案、风格配置到 Remotion 成片应该先做哪一步。这个 Skill 负责识别当前材料状态，把任务交给正确的下游 Skill，并阻止跳过关键步骤。
 
-![Shin-video style comparison](docs/demo/style-comparison.png)
+## 它在工作流里的位置
 
-## 它解决什么问题
+**阶段：** 入口与全流程调度
 
-Shin-video 面向「文章转口播视频」场景：你给 Agent 一篇文章或文章链接，Agent 先整理成可念的口播文案，再根据音频生成时间轴、字幕节奏、导演方案、视觉风格和 Remotion 视频。
+**上游：**
+- 用户输入
 
-它不是专业剪辑软件，也不是项目管理后台。它的目标是让新手不用学习 WhisperX、Remotion、字幕轴、分镜和动效参数，也能按固定流程产出一条可预览、可导出的 MP4。
+**下游：**
+- web-article-cleaner
+- voiceover-writer
+- audio-checker
+- whisperx-transcriber
+- scene-generator
+- subtitle-rhythm-builder
+- remotion-video-director
+- style-consultant
+- animation-preset-builder
+- remotion-renderer
 
-## 核心管线
+## 输入什么
 
-```mermaid
-flowchart LR
-  A["文章 / 文章链接"] --> B["文章清洗"]
-  B --> C["口播文案"]
-  C --> D["TTS 生成音频 / 手动放入口播音频"]
-  D --> E["音频检查"]
-  E --> F["WhisperX 时间戳"]
-  F --> G["字幕节奏"]
-  G --> H["scenes.json"]
-  H --> I["director-plan.json"]
-  I --> J["style-profile.json"]
-  J --> K["Remotion 渲染预览"]
-  K --> L["成品/成品.mp4"]
-```
+- 文章链接、文章正文、已有口播文案或已有口播音频
+- 当前项目目录中的固定文件
+- 用户对风格、比例、素材、质量的确认
 
-最终用户看到的是：
+## 输出什么
 
-```text
-第一步：把文章或文章链接发给 Agent
-第二步：确认 Agent 生成的口播文案
-第三步：把生成好的口播音频交给 Agent
-第四步：确认视觉风格和视频比例
-第五步：等待视频生成
-```
+- 下一步执行指令
+- 完整工作流状态判断
+- 最终引导到 runtime/preview.mp4 和 成品/成品.mp4
 
-## 为什么不是 PPT 式视频
+## 背后由哪些能力组成
 
-Shin-video 的关键设计不是「给每段字幕套一个卡片模板」，而是把视频拆成两层：
+这个 Skill 自身负责：
 
-```text
-director-plan.json  负责导演层：叙事结构、节奏曲线、镜头类型、重点段落、字幕安全区
-style-profile.json  负责视觉层：主题色、字体、背景、动效模块、转场、卡片质感
-```
+- 新手不知道怎么开始
+- Agent 容易跳步骤
+- 生成视频前缺少导演方案或视觉风格确认
+- TTS 失败时整条链路被错误中断
 
-这两个文件共同约束 Remotion 模板：
+它通常由 `shin-video-director` 总控调用，也可以在当前项目材料已经准备好时单独调用。
 
-- 同一条视频保持统一视觉主题，但每个段落可以使用不同镜头语言。
-- 主画面只负责解释、强化、可视化，不重复完整字幕。
-- 字幕跟随音频时间轴，放在安全区，不压住主体画面。
-- 数据段、时间线、关系图、价格冲击、总结段要使用不同画面功能。
-- Remotion 模板必须读取 `director-plan.json` 和 `style-profile.json`，否则反模板化设计不会生效。
+## 每个 Skill 的作用
 
-## 安装
+在完整 AI 员工体系里，本 Skill 的职责是：**总控编排**。
 
-这个仓库是 **总控入口包**，负责判断材料状态和调度工作流。它不是完整工作流包，单独安装它只能得到入口调度能力。
+它不负责：
 
-如果你要完整运行 Shin-video，需要同时安装下面 10 个子 Skill：
+- 单独替代全部子 Skill
+- 直接生成 MP4
+- 绕过 WhisperX 或 Remotion
 
-```bash
-npx skills add https://github.com/Shinchan-crayon/web-article-cleaner
-npx skills add https://github.com/Shinchan-crayon/voiceover-writer
-npx skills add https://github.com/Shinchan-crayon/audio-checker
-npx skills add https://github.com/Shinchan-crayon/whisperx-transcriber
-npx skills add https://github.com/Shinchan-crayon/scene-generator
-npx skills add https://github.com/Shinchan-crayon/subtitle-rhythm-builder
-npx skills add https://github.com/Shinchan-crayon/remotion-video-director
-npx skills add https://github.com/Shinchan-crayon/style-consultant
-npx skills add https://github.com/Shinchan-crayon/animation-preset-builder
-npx skills add https://github.com/Shinchan-crayon/remotion-renderer
-```
+## 演示截图 / 视频
 
-最后再安装总控入口：
+![Shin-video Demo](docs/demo/style-comparison.png)
+
+演示重点：完整流程 Demo：文章输入 -> 口播文案 -> 音频 -> 时间轴 -> 导演方案 -> 风格确认 -> MP4。
+
+完整视频 Demo 建议放在总控仓库或 ThinkAI Skill 页面中展示；单个 Skill 仓库保留截图和阶段说明，避免每个子仓库重复放大视频文件。
+
+## 适合谁买
+
+想把文章稳定做成本地口播视频的内容团队、AI 工具玩家、工作流搭建者。
+
+## 下载 / 安装方式
 
 ```bash
 npx skills add https://github.com/Shinchan-crayon/shin-video-director
 ```
 
-如果你拿到的是完整工作流包，优先按 `workflow-manifest.json` 和 `AGENT-先读我.md` 安装，不要只装总控入口。
-
-## 前置依赖
-
-运行完整链路前，建议先准备好这些环境：
-
-```text
-Node.js + npm        用于运行 Remotion 项目和前端工具
-Python 3            用于 WhisperX / faster-whisper 相关脚本
-FFmpeg              用于音频检查、转码、视频合成
-WhisperX            用于从口播音频生成时间戳
-faster-whisper      用于本地语音识别模型能力
-Remotion            用于 React 视频模板渲染
-MiniMax API Key     可选，用于 speech-2.8-hd 自动生成口播音频
-```
-
-MiniMax 不可用时，不要卡死整条线。用户可以手动提供 `口播音频.mp3`，然后继续执行音频检查、WhisperX 时间戳、导演方案和 Remotion 渲染。
-
-本仓库只保存 Skill 说明，不保存你的 API Key。请把密钥放到本地运行项目的 `.env.local` 或 Agent 指定的安全配置里，不要提交到 GitHub。
-
-更细的新手安装说明见：
-
-- `references/前期准备说明.md`
-- `references/新手小白安装与制作教程.md`
-- `references/WhisperX和Remotion部署说明.md`
-
-## 使用方式
-
-安装后，向 Agent 说明你要使用「Shin-video 总导演」即可。
-
-示例：
+安装后，在支持 Skill 的 Agent 中说：
 
 ```text
 请使用 Shin-video 总导演，继续处理当前 Shin-video 项目。
 ```
 
-常见输入方式：
+## 付费版本和定制服务入口
 
-```text
-我发你一篇文章，请先改成 300 字口播文案。
-```
+- 免费版：安装本 Skill，按本地 Shin-video 工作流手动配置运行。
+- 付费版：可提供整套工作流安装包、环境部署协助、示例项目和远程排障。
+- 定制服务：可按行业定制口播风格、导演规则、Remotion 模板、品牌视觉系统和 ThinkAI 上架页面。
 
-```text
-口播文案确认，继续生成音频。
-```
+咨询入口：ThinkAI Skill 广场 / GitHub Issues / 私信定制咨询
 
-```text
-音频已经放到口播音频.mp3，继续生成时间戳和视频。
-```
+## 验收标准
 
-## 运行产物
+使用本 Skill 后，至少要能确认：
 
-Shin-video v1 的统一输出规范是：
-
-```text
-文章正文.md
-口播文案.md
-口播音频.mp3
-runtime/asr.json
-runtime/scenes.json
-runtime/director-plan.json
-runtime/style-profile.json
-runtime/preview.mp4
-成品/成品.mp4
-```
-
-其中：
-
-- `runtime/asr.json`：音频识别和时间戳结果。
-- `runtime/scenes.json`：按时间轴切分的字幕和场景基础数据。
-- `runtime/director-plan.json`：导演级镜头、节奏、重点段落和安全区设计。
-- `runtime/style-profile.json`：视觉主题、动效模块、转场和 Remotion 渲染配置。
-- `runtime/preview.mp4`：预览视频。
-- `成品/成品.mp4`：最终交付视频。
+- 已正确生成或推进到：下一步执行指令
+- 已正确生成或推进到：完整工作流状态判断
+- 已正确生成或推进到：最终引导到 runtime/preview.mp4 和 成品/成品.mp4
+- 没有绕过它的上游依赖。
+- 没有把本 Skill 明确不负责的事情混进来。
+- 出错时能说清楚卡在哪个输入或环境条件上。
 
 ## 能力边界
 
-- v1 默认处理纯文章自然语言，生成 MG 动画口播视频。
-- v1 不把图片素材作为必要步骤，图片只作为可选增强。
-- v1 不做网站、账号、历史记录、项目管理和仪表盘。
-- 口播文案只能包含要念出来的话，不能混入分镜说明或 Remotion 指令。
-- 不能跳过 WhisperX 时间戳步骤。
-- 不能跳过 `runtime/director-plan.json` 和 `runtime/style-profile.json`。
-- 最终成片固定输出到 `成品/成品.mp4`。
-- 视频质量最终取决于本地 Remotion 模板是否真正读取并执行 `director-plan.json` 和 `style-profile.json`。
+- 单独替代全部子 Skill
+- 直接生成 MP4
+- 绕过 WhisperX 或 Remotion
 
-## 总控包职责
-
-`shin-video-director` 只负责判断用户当前给了什么材料，并调度对应子 Skill：
-
-```text
-用户只给文章       -> 文章清洗 + 口播文案
-用户确认口播文案   -> 音频生成 / 等待用户放入口播音频
-用户已放入口播音频 -> 音频检查 + WhisperX 时间戳
-时间戳完成         -> 场景生成 + 字幕节奏 + 导演方案
-渲染前             -> 询问视觉风格和视频比例
-风格确认后         -> 视觉预设 + Remotion 渲染 + 导出 MP4
-```
-
-真正干活的是子 Skill 和本地 Shin-video 运行项目。总控包的价值是保证流程不漏步骤，尤其是不跳过时间戳、导演方案、视觉风格确认和最终渲染检查。
+Shin-video 追求的是「可维护的本地视频生成工作流」，不是把所有能力塞进一个万能提示词。这个 Skill 只负责自己这一段，完整成片需要配合其它 AI 员工和本地 Shin-video 项目。
